@@ -1,19 +1,63 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <Header :numCorrect="numCorrect" :numTotalAnswers="numTotalAnswers" />
+
+    <b-container class="bv-example-row">
+      <b-row>
+        <b-col sm="6" offset="3">
+          <QuestionBox
+            v-if="questions.length && index <= questions.length"
+            :currentQuestion="questions[index]"
+            :next="next"
+            :increment="increment"
+          />
+        </b-col>
+      </b-row>
+    </b-container>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import Header from './components/Header';
+import QuestionBox from './components/QuestionBox';
+import axios from 'axios';
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
-  }
-}
+    Header,
+    QuestionBox,
+  },
+  data() {
+    return {
+      questions: [],
+      index: 0,
+      numCorrect: 0,
+      numTotalAnswers: 0,
+    };
+  },
+  methods: {
+    next() {
+      this.index++;
+    },
+    increment(isCorrect) {
+      console.log('i ran');
+
+      if (isCorrect) {
+        this.numCorrect++;
+      }
+
+      this.numTotalAnswers++;
+    },
+  },
+  async mounted() {
+    const res = await axios.get(
+      'https://opentdb.com/api.php?amount=10&category=24&type=multiple',
+    );
+
+    this.questions = res.data.results;
+  },
+};
 </script>
 
 <style>
